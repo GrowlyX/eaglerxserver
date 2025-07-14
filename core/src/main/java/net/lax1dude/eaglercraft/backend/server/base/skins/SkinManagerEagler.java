@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2025 lax1dude. All Rights Reserved.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -11,7 +11,7 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 package net.lax1dude.eaglercraft.backend.server.base.skins;
@@ -357,7 +357,7 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 					return;
 				}
 				supervisorService.getRemoteOnlyResolver().resolvePlayerCapeKeyed(player.getUniqueId(), targetUUID, (res) -> {
-					if (res != MissingCape.UNAVAILABLE_CAPE) {
+					if (res != null && res != MissingCape.UNAVAILABLE_CAPE) {
 						if (!res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
