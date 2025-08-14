@@ -319,7 +319,7 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 				}
 				supervisorService.getRemoteOnlyResolver().resolvePlayerSkinKeyed(player.getUniqueId(), targetUUID, (res) -> {
 					if (res != MissingSkin.UNAVAILABLE_SKIN) {
-						if (!res.isSuccess()) {
+						if (res == null || !res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
 						player.sendEaglerMessage(
@@ -415,7 +415,7 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 				}
 				supervisorService.getRemoteOnlyResolver().resolvePlayerSkinKeyed(player.getUniqueId(), targetUUID, (res) -> {
 					if (res != MissingSkin.UNAVAILABLE_SKIN) {
-						if (!res.isSuccess()) {
+						if (res == null || !res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
 						player.sendEaglerMessage(res.getSkinPacket(requestId, player.getEaglerProtocol()));
@@ -453,7 +453,7 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 				}
 				supervisorService.getRemoteOnlyResolver().resolvePlayerCapeKeyed(player.getUniqueId(), targetUUID, (res) -> {
 					if (res != MissingCape.UNAVAILABLE_CAPE) {
-						if (!res.isSuccess()) {
+						if (res == null || !res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
 						player.sendEaglerMessage(res.getCapePacket(requestId, player.getEaglerProtocol()));
@@ -475,7 +475,7 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 		}
 		skinService.loadCacheSkinFromURLKeyed(this, url, EnumSkinModel.STEVE, (res) -> {
 			if (res != MissingSkin.UNAVAILABLE_SKIN) {
-				if (!res.isSuccess()) {
+				if (res == null || !res.isSuccess()) {
 					player.getRateLimits().ratelimitSkinAntagonist();
 				}
 				player.sendEaglerMessage(res.getSkinPacket(requestId, 0xFF, player.getEaglerProtocol()));
@@ -518,7 +518,7 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 					protected void onComplete(SkinManagerEagler<PlayerObject> mgr, IEaglerPlayerSkin skin,
 							IEaglerPlayerCape cape) {
 						if (skin != MissingSkin.UNAVAILABLE_SKIN && cape != MissingCape.UNAVAILABLE_CAPE) {
-							if (!skin.isSuccess() && !cape.isSuccess()) {
+							if (skin == null || !skin.isSuccess() && !cape.isSuccess()) {
 								mgr.player.getRateLimits().ratelimitSvSkinAntagonist();
 							}
 							mgr.player.sendEaglerMessage(mgr.createV5Textures(requestId, skin, cape));
