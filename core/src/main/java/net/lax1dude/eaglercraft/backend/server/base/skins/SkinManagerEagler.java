@@ -322,8 +322,11 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 						if (res == null || !res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
-						player.sendEaglerMessage(
-								res.getSkinPacket(uuidMost, uuidLeast, player.getEaglerProtocol()));
+
+                        if (res != null) {
+                            player.sendEaglerMessage(
+                                res.getSkinPacket(uuidMost, uuidLeast, player.getEaglerProtocol()));
+                        }
 					}
 				});
 			} else {
@@ -418,7 +421,9 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 						if (res == null || !res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
-						player.sendEaglerMessage(res.getSkinPacket(requestId, player.getEaglerProtocol()));
+						if (res != null) {
+                            player.sendEaglerMessage(res.getSkinPacket(requestId, player.getEaglerProtocol()));
+                        }
 					}
 				});
 			} else {
@@ -456,7 +461,9 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 						if (res == null || !res.isSuccess()) {
 							player.getRateLimits().ratelimitSvSkinAntagonist();
 						}
-						player.sendEaglerMessage(res.getCapePacket(requestId, player.getEaglerProtocol()));
+						if (res != null) {
+                            player.sendEaglerMessage(res.getCapePacket(requestId, player.getEaglerProtocol()));
+                        }
 					}
 				});
 			} else {
@@ -478,7 +485,9 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 				if (res == null || !res.isSuccess()) {
 					player.getRateLimits().ratelimitSkinAntagonist();
 				}
-				player.sendEaglerMessage(res.getSkinPacket(requestId, 0xFF, player.getEaglerProtocol()));
+				if (res != null) {
+                    player.sendEaglerMessage(res.getSkinPacket(requestId, 0xFF, player.getEaglerProtocol()));
+                }
 			}
 		});
 	}
@@ -502,6 +511,10 @@ public class SkinManagerEagler<PlayerObject> implements ISkinManagerEagler<Playe
 					@Override
 					protected void onComplete(SkinManagerEagler<PlayerObject> mgr, IEaglerPlayerSkin skin,
 							IEaglerPlayerCape cape) {
+                        if (skin == null || cape == null) {
+                            return;
+                        }
+
 						mgr.player.sendEaglerMessage(mgr.createV5Textures(requestId, skin, cape));
 					}
 				};
