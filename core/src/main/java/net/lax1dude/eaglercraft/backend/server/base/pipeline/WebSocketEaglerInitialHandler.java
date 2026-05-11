@@ -243,31 +243,15 @@ public class WebSocketEaglerInitialHandler extends MessageToMessageCodec<ByteBuf
 				}
 				switch (j) {
 				case 2:
-					if (v2InList) {
-						ctx.close();
-						return;
-					}
 					v2InList = true;
 					break;
 				case 3:
-					if (v3InList) {
-						ctx.close();
-						return;
-					}
 					v3InList = true;
 					break;
 				case 4:
-					if (v4InList) {
-						ctx.close();
-						return;
-					}
 					v4InList = true;
 					break;
 				case 5:
-					if (v5InList) {
-						ctx.close();
-						return;
-					}
 					v5InList = true;
 					maxAllowedMC = maxAllowedMCV5;
 					break;
@@ -659,6 +643,15 @@ public class WebSocketEaglerInitialHandler extends MessageToMessageCodec<ByteBuf
 		handshaker.finish(ctx);
 		ChannelPipeline pipeline = ctx.pipeline();
 		pipeline.fireUserEventTriggered(EnumPipelineEvent.EAGLER_HANDSHAKE_COMPLETE);
+		if (pipelineData.minecraftProtocol >= 764) {
+			ByteBuf ackBuf = ctx.alloc().buffer();
+			try {
+				BufferUtils.writeVarInt(ackBuf, 0x03);
+				ctx.fireChannelRead(ackBuf.retain());
+			} finally {
+				ackBuf.release();
+			}
+		}
 		vanillaInitializer.flushBufferedPackets(ctx);
 		pipeline.remove(PipelineTransformer.HANDLER_HANDSHAKE);
 		pipelineData.signalPlayState();

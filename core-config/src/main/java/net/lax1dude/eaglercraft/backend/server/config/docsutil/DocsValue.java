@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 lax1dude. All Rights Reserved.
+ * Copyright (c) 2026 lax1dude. All Rights Reserved.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -14,28 +14,24 @@
  * 
  */
 
-package net.lax1dude.eaglercraft.backend.eaglermotd.adapter;
+package net.lax1dude.eaglercraft.backend.server.config.docsutil;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.function.Consumer;
+class DocsValue {
 
-import com.google.gson.JsonParseException;
-
-import net.lax1dude.eaglercraft.backend.server.api.event.IEaglercraftMOTDEvent;
-
-public interface IEaglerMOTDPlatform<PlayerObject> {
-
-	IEaglerMOTDLogger logger();
-
-	void setOnMOTD(Consumer<IEaglercraftMOTDEvent<PlayerObject>> handler);
-
-	void setOnReload(IHandleReload handleReload);
-
-	public interface IHandleReload {
-		void reload() throws JsonParseException, IOException;
+	static enum Type {
+		BOOL, INT, STR
 	}
 
-	File getDataFolder();
+	final Type type;
+	final String value;
+	final String comment;
+	final boolean randomized;
+
+	DocsValue(Type type, String value, String comment, boolean randomized) {
+		this.type = type;
+		this.value = value;
+		this.comment = comment;
+		this.randomized = randomized;
+	}
 
 }

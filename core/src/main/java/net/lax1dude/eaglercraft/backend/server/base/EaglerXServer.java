@@ -163,7 +163,7 @@ public class EaglerXServer<PlayerObject> implements IEaglerXServerImpl<PlayerObj
 	private boolean isEaglerPlayerProperyEnabled;
 	private SkinService<PlayerObject> skinService;
 	private DeferredStartSkinCache skinCacheService;
-	private Connection skinCacheJDBCHandle;
+	private Connection[] skinCacheJDBCHandle;
 	private IVoiceServiceImpl<PlayerObject> voiceService;
 	private NotificationService<PlayerObject> notificationService;
 	private WebViewService<PlayerObject> webViewService;
@@ -421,11 +421,15 @@ public class EaglerXServer<PlayerObject> implements IEaglerXServerImpl<PlayerObj
 			if (threadCount <= 0) {
 				threadCount = Runtime.getRuntime().availableProcessors();
 			}
+			int connectionCount = 1;
+			if (!skinConf.isSkinCacheSQLiteCompatible() || skinConf.isSkinCacheForceConnectionPool()) {
+				connectionCount = threadCount;
+			}
 			SkinCacheDatastore datastore;
 			try {
 				skinCacheJDBCHandle = EaglerDrivers.connectToDatabase(skinConf.getSkinCacheDBURI(),
 						skinConf.getSkinCacheDriverClass(), skinConf.getSkinCacheDriverPath(), new Properties(),
-						platform.getDataFolder(), logger());
+						platform.getDataFolder(), logger(), connectionCount);
 				datastore = new SkinCacheDatastore(skinCacheJDBCHandle, threadCount,
 						skinConf.getSkinCacheDiskKeepObjectsDays(), skinConf.getSkinCacheDiskMaxObjects(),
 						Math.min(skinConf.getSkinCacheCompressionLevel(), 9), skinConf.isSkinCacheSQLiteCompatible(),
@@ -434,9 +438,11 @@ public class EaglerXServer<PlayerObject> implements IEaglerXServerImpl<PlayerObj
 			} catch (SQLException e) {
 				logger().error("Caught an exception while initializing the skin cache database", e);
 				if (skinCacheJDBCHandle != null) {
-					try {
-						skinCacheJDBCHandle.close();
-					} catch (SQLException ee) {
+					for (int i = 0; i < skinCacheJDBCHandle.length; ++i) {
+						try {
+							skinCacheJDBCHandle[i].close();
+						} catch (SQLException ee) {
+						}
 					}
 					skinCacheJDBCHandle = null;
 				}
@@ -479,12 +485,19 @@ public class EaglerXServer<PlayerObject> implements IEaglerXServerImpl<PlayerObj
 				logger().info("Disconnecting from skin cache database \""
 						+ Util.sanitizeJDBCURIForLogs(config.getSettings().getSkinService().getSkinCacheDBURI())
 						+ "\"...");
-				try {
-					skinCacheJDBCHandle.close();
-				} catch (SQLException ee) {
+				boolean errored = false;
+				for (int i = 0; i < skinCacheJDBCHandle.length; ++i) {
+					try {
+						skinCacheJDBCHandle[i].close();
+					} catch (SQLException ee) {
+						logger().error("Failed to disconnect from skin cache database!", ee);
+						errored = true;
+					}
 				}
 				skinCacheJDBCHandle = null;
-				logger().info("Disconnected from skin cache database successfully!");
+				if (!errored) {
+					logger().info("Disconnected from skin cache database successfully!");
+				}
 			}
 			skinCacheService.setDelegate(null);
 		}
@@ -742,6 +755,11 @@ public class EaglerXServer<PlayerObject> implements IEaglerXServerImpl<PlayerObj
 	@Override
 	public boolean isMinecraftProtocolSupported(int vers) {
 		return config.getSettings().getProtocols().isMinecraftProtocolSupported(vers);
+	}
+
+	@Override
+	public boolean isMinecraftProtocolSupportedV5(int vers) {
+		return config.getSettings().getProtocols().isMinecraftProtocolSupportedV5(vers);
 	}
 
 	@Override

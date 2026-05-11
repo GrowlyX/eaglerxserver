@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 lax1dude. All Rights Reserved.
+ * Copyright (c) 2026 lax1dude. All Rights Reserved.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -14,28 +14,31 @@
  * 
  */
 
-package net.lax1dude.eaglercraft.backend.eaglermotd.adapter;
+package net.lax1dude.eaglercraft.backend.server.config.docsutil;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.google.gson.JsonParseException;
+import net.lax1dude.eaglercraft.backend.server.config.IEaglerConfSection;
 
-import net.lax1dude.eaglercraft.backend.server.api.event.IEaglercraftMOTDEvent;
+public class DocsDirectory {
 
-public interface IEaglerMOTDPlatform<PlayerObject> {
+	final Map<String, DocsSection> map = new HashMap<>();
 
-	IEaglerMOTDLogger logger();
-
-	void setOnMOTD(Consumer<IEaglercraftMOTDEvent<PlayerObject>> handler);
-
-	void setOnReload(IHandleReload handleReload);
-
-	public interface IHandleReload {
-		void reload() throws JsonParseException, IOException;
+	DocsDirectory() {
 	}
 
-	File getDataFolder();
+	public <T> T addFile(String name, IDocConfLoader<T> provider) throws IOException {
+		DocsSection section = map.get(name);
+		if (section == null) {
+			map.put(name, section = new DocsSection());
+		}
+		return provider.call(section);
+	}
+
+	public interface IDocConfLoader<T> {
+		T call(IEaglerConfSection section) throws IOException;
+	}
 
 }

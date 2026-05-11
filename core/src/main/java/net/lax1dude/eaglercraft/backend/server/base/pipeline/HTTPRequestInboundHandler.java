@@ -358,9 +358,12 @@ public class HTTPRequestInboundHandler extends ChannelInboundHandlerAdapter {
 					responseSlot.complete(populateHeadersFrom(
 							createResponse(status, null, context.responsePrepared.buffer.readableBytes()), context));
 				} else {
-					responseSlot.complete(populateHeadersFrom(
-							createResponse(status, Unpooled.wrappedBuffer(context.responsePrepared.buffer), 0), context)
-							.retain());
+					ByteBuf buf = Unpooled.wrappedBuffer(context.responsePrepared.buffer.retain());
+					try {
+						responseSlot.complete(populateHeadersFrom(createResponse(status, buf, 0), context).retain());
+					} finally {
+						buf.release();
+					}
 				}
 				break;
 			case RequestContext.RESPONSE_BYTE_ARRAY:
@@ -390,9 +393,14 @@ public class HTTPRequestInboundHandler extends ChannelInboundHandlerAdapter {
 				responseSlot.complete(populateHeadersFrom(createResponse(status, null, 0), context));
 				break;
 			case RequestContext.RESPONSE_UNSAFE_BUF:
-				responseSlot
-						.complete(populateHeadersFrom(createResponse(status, context.responseUnsafeByteBuf, 0), context)
-								.retain());
+				if (context.meth == EnumRequestMethod.HEAD) {
+					responseSlot.complete(populateHeadersFrom(
+							createResponse(status, null, context.responseUnsafeByteBuf.readableBytes()), context));
+				} else {
+					responseSlot.complete(
+							populateHeadersFrom(createResponse(status, context.responseUnsafeByteBuf, 0), context)
+									.retain());
+				}
 				break;
 			case RequestContext.RESPONSE_UNSAFE_FULL:
 				responseSlot.complete(context.responseUnsafeFull.retain());
